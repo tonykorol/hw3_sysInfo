@@ -1,6 +1,7 @@
 from datetime import datetime
 from os import system
 from psutil import *
+from time import sleep
 
 def get_sys_info():
     boot_t = str(datetime.fromtimestamp(boot_time()))
@@ -17,7 +18,7 @@ def get_cpu_info():
 def show_cpu_info(info):    
     for i in range(len(info)):
         _ = '|' * round(((30*info[i])/100))
-        p = 'cpu{0:<2} {1:>4} % [{2:<30}]'.format(i+1, info[i],_)
+        p = 'cpu{0:<2} {1:>4} % [{2:<30}]'.format(i+1, info[i], _)
         if (i+1)%3 == 0:
             print(p)
         else:
@@ -42,7 +43,8 @@ def get_process_info():
     return proc_info
 
 def show_process_info(proc):
-    print('\n{0:^10}|{1:^20}|{2:^10}|{3:^10}|{4:^10}%|{5:^10}%|{6:^20}|{7:^10}'.format('PID', 'USER', 'PRI', 'S', 'CPU', 'MEM', 'TIME', 'Command'), end='\n'+'-'*170+'\n')
+    print('\n{0:^10}|{1:^20}|{2:^10}|{3:^10}|{4:^10}%|{5:^10}%|{6:^20}|{7:^10}'
+          .format('PID', 'USER', 'PRI', 'S', 'CPU', 'MEM', 'TIME', 'Command'), end='\n'+'-'*170+'\n')
     for el in proc:
         proc[el]['create_time'] = datetime.fromtimestamp(boot_time()).strftime("%H:%M:%S")
         if proc[el]['exe'] != None : 
