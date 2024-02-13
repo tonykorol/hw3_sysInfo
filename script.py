@@ -7,10 +7,12 @@ def get_sys_info():
     boot_t = str(datetime.fromtimestamp(boot_time()))
     usrs = users()
     user = usrs[0].name
-    return boot_t, user
+    bat = sensors_battery()
+    bat = bat.percent
+    return boot_t, user, bat
 
 def show_sys_info(sys):
-    print('Boot time: {0:<40}\nUser: {1}'.format(sys[0], sys[1]), end='\n\n')
+    print('Boot time: {0}\nUser: {1}\ngBattery: {2}%'.format(sys[0], sys[1], sys[2]), end='\n\n')
 
 def get_cpu_info():
     return cpu_percent(interval=1, percpu=True)
