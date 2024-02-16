@@ -3,6 +3,17 @@ from os import system
 from psutil import *
 from time import sleep
 
+def sys_in_file(func):
+
+    def in_file():
+        sys = func()
+        with open('sys_info.txt', 'w') as f:
+            f.write(str(sys))
+        return sys
+
+    return in_file
+
+@sys_in_file
 def get_sys_info():
     boot_t = str(datetime.fromtimestamp(boot_time()))
     usrs = users()
@@ -14,6 +25,16 @@ def get_sys_info():
 def show_sys_info(sys):
     print('Boot time: {0}\nUser: {1}\ngBattery: {2}%'.format(sys[0], sys[1], sys[2]), end='\n\n')
 
+def cpu_in_file(func):
+    
+    def in_file():
+        cpu = func()
+        with open('cpu_info.txt', 'w') as f:
+            f.write(str(cpu))
+        return cpu
+    return in_file
+
+@cpu_in_file
 def get_cpu_info():
     return cpu_percent(interval=1, percpu=True)
 
@@ -26,6 +47,17 @@ def show_cpu_info(info):
         else:
             print('{:<50}'.format(p), end='')
 
+def mem_in_file(func):
+
+    def in_file():
+        mem = func()
+        with open('mem_info.txt', 'w') as f:
+            f.write(str(mem))
+        return mem
+
+    return in_file
+
+@mem_in_file
 def get_mem_info():
     mem = virtual_memory()
     total_phys = round(mem.total * 1e-9, 1)
@@ -40,6 +72,18 @@ def show_mem_info(mem):
     print('\nMem {0:>15}Gb/{1}Gb'.format(mem['used_phys'], mem['total_phys']))
     print('swp {0:>15}Gb/{1}Gb'.format(mem['used_swp'], mem['total_swp']))       
 
+
+def proc_in_file(func):
+
+    def in_file():
+        proc = func()
+        with open('proc_info.txt', 'w') as f:
+            f.write(str(proc))
+        return proc
+
+    return in_file
+
+@proc_in_file
 def get_process_info():
     proc_info = {p.pid: p.info for p in process_iter(['name', 'username', 'nice', 'status', 'cpu_percent', 'memory_percent', 'exe', 'create_time'])}
     return proc_info
