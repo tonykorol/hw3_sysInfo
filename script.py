@@ -1,10 +1,11 @@
 from datetime import datetime
 from os import system
 from psutil import *
-from time import sleep
+from functools import wraps
 
 def sys_in_file(func):
 
+    @wraps(func)
     def in_file():
         sys = func()
         with open('sys_info.txt', 'w') as f:
@@ -19,14 +20,15 @@ def get_sys_info():
     usrs = users()
     user = usrs[0].name
     bat = sensors_battery()
-    bat = bat.percent
+    bat = round(bat.percent)
     return boot_t, user, bat
 
 def show_sys_info(sys):
-    print('Boot time: {0}\nUser: {1}\ngBattery: {2}%'.format(sys[0], sys[1], sys[2]), end='\n\n')
+    print('Boot time: {0}\nUser: {1}\nBattery: {2}%'.format(sys[0], sys[1], sys[2]), end='\n\n')
 
 def cpu_in_file(func):
     
+    @wraps(func)
     def in_file():
         cpu = func()
         with open('cpu_info.txt', 'w') as f:
@@ -49,6 +51,7 @@ def show_cpu_info(info):
 
 def mem_in_file(func):
 
+    @wraps(func)
     def in_file():
         mem = func()
         with open('mem_info.txt', 'w') as f:
@@ -75,6 +78,7 @@ def show_mem_info(mem):
 
 def proc_in_file(func):
 
+    @wraps(func)
     def in_file():
         proc = func()
         with open('proc_info.txt', 'w') as f:
