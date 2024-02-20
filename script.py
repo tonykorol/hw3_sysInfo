@@ -1,20 +1,23 @@
+import csv
+import json
+
 from datetime import datetime
 from os import system
 from psutil import *
 from functools import wraps
 
-def sys_in_file(func):
+def in_file_json(source):
+    def dec(func):
+        @wraps(func)
+        def wrapper():
+            info = func()
+            with open(source, 'w') as f:
+                json.dump(info, f)
+            return info
+        return wrapper
+    return dec
 
-    @wraps(func)
-    def in_file():
-        sysin = func()
-        with open('sys_info.txt', 'w') as f:
-            f.write(str(sysin))
-        return sysin
-
-    return in_file
-
-@sys_in_file
+@in_file_json('info/sys_info.json')
 def get_sys_info():
     boot_t = str(datetime.fromtimestamp(boot_time()))
     usrs = users()
@@ -26,17 +29,7 @@ def get_sys_info():
 def show_sys_info(sys):
     print('Boot time: {0}\nUser: {1}\nBattery: {2}%'.format(sys[0], sys[1], sys[2]), end='\n\n')
 
-def cpu_in_file(func):
-    
-    @wraps(func)
-    def in_file():
-        cpu = func()
-        with open('cpu_info.txt', 'w') as f:
-            f.write(str(cpu))
-        return cpu
-    return in_file
-
-@cpu_in_file
+@in_file_json('info/cpu_info.json')
 def get_cpu_info():
     return cpu_percent(interval=1, percpu=True)
 
@@ -49,18 +42,7 @@ def show_cpu_info(info):
         else:
             print('{:<50}'.format(p), end='')
 
-def mem_in_file(func):
-
-    @wraps(func)
-    def in_file():
-        mem = func()
-        with open('mem_info.txt', 'w') as f:
-            f.write(str(mem))
-        return mem
-
-    return in_file
-
-@mem_in_file
+@in_file_json('info/mem_info.json')
 def get_mem_info():
     mem = virtual_memory()
     total_phys = round(mem.total * 1e-9, 1)
@@ -87,7 +69,22 @@ def proc_in_file(func):
 
     return in_file
 
-@proc_in_file
+def in_file_csv(source):
+    def dec(func):
+        @wraps(func)
+        def wrapper():
+            info = func()
+            with open(source, 'w', newline='') as f:
+                write_info = csv.writer(f, delimiter=';')
+                write_info.writerow(['PID', 'USER', 'PRI', 'S', 'CPU', 'MEM', 'TIME', 'Command'])
+                for el in info:
+                    write_info.writerow([str(el), info[el]['username'],info[el]['nice'], info[el]['status'], info[el]['cpu_percent'], 
+                            info[el]['memory_percent'], info[el]['create_time'], info[el]['exe']])
+            return info
+        return wrapper
+    return dec
+
+@in_file_csv('info/proc_info.csv')
 def get_process_info():
     proc_info = {p.pid: p.info for p in process_iter(['name', 'username', 'nice', 'status', 'cpu_percent', 'memory_percent', 'exe', 'create_time'])}
     return proc_info
@@ -97,10 +94,12 @@ def show_process_info(proc):
           .format('PID', 'USER', 'PRI', 'S', 'CPU', 'MEM', 'TIME', 'Command'), end='\n'+'-'*170+'\n')
     for el in proc:
         proc[el]['create_time'] = datetime.fromtimestamp(boot_time()).strftime("%H:%M:%S")
+        proc[el]['cpu_percent'] = round(proc[el]['cpu_percent'], 2)
+        proc[el]['memory_percent'] = round(proc[el]['memory_percent'], 2)
         if proc[el]['exe'] != None : 
             print('{0:^10}|{1:^20}|{2:^10}|{3:^10}|{4:^10}%|{5:^10}%|{6:^20}|{7:^10}'
-                    .format(el, proc[el]['username'],proc[el]['nice'], proc[el]['status'], round(proc[el]['cpu_percent'], 2), 
-                            round(proc[el]['memory_percent'], 2), proc[el]['create_time'], proc[el]['exe'])) 
+                    .format(el, proc[el]['username'],proc[el]['nice'], proc[el]['status'], proc[el]['cpu_percent'], 
+                            proc[el]['memory_percent'], proc[el]['create_time'], proc[el]['exe']))  
 
 def init_term_params():
     system('resize -s 45 170')
