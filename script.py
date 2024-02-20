@@ -7,10 +7,10 @@ def sys_in_file(func):
 
     @wraps(func)
     def in_file():
-        sys = func()
+        sysin = func()
         with open('sys_info.txt', 'w') as f:
-            f.write(str(sys))
-        return sys
+            f.write(str(sysin))
+        return sysin
 
     return in_file
 

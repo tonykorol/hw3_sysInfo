@@ -1,1 +1,1 @@
-{'total_phys': 16.1, 'used_phys': 2.9, 'total_swp': 2.1, 'used_swp': 0.0}
+{'total_phys': 16.1, 'used_phys': 3.9, 'total_swp': 2.1, 'used_swp': 0.0}
